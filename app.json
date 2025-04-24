@@ -1,5 +1,6 @@
 {
   "expo": {
+    "newArchEnabled": true,
     "name": "PG Tenant",
     "slug": "pg-tenant",
     "version": "1.0.0",

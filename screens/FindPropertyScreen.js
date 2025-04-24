@@ -12,7 +12,7 @@ const FindPropertyScreen = ({ navigation }) => {
   // Mock property details lookup
   const mockPropertyDatabase = {
     '123456': {
-      name: 'Sunshine PG',
+      name: 'Akhil PG',
       address: '123, Main Road, City Center',
       type: 'PG/Hostel',
       price: '₹8000/month',
@@ -21,7 +21,7 @@ const FindPropertyScreen = ({ navigation }) => {
       amenities: 'WiFi, Laundry, Food',
     },
     '654321': {
-      name: 'Elite Residency',
+      name: 'Project ',
       address: '456, Lakeview Street',
       type: 'Apartment',
       price: '₹15,000/month',
