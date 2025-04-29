@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, StyleSheet, KeyboardAvoidingView, Platform, Modal, TouchableOpacity } from 'react-native';
 import { TextInput, Button, Text } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-
+import apiClient from "../api/auth";
 const FindPropertyScreen = ({ navigation }) => {
   const [propertyCode, setPropertyCode] = useState('');
   const [showConfirm, setShowConfirm] = useState(false);
@@ -31,17 +31,51 @@ const FindPropertyScreen = ({ navigation }) => {
     },
   };
 
-  const handleNext = () => {
-    // Simulate property lookup
-    if (mockPropertyDatabase[propertyCode]) {
-      setPropertyDetails(mockPropertyDatabase[propertyCode]);
+  // const handleNext = () => {// is 
+  //   // Simulate property lookup
+  //   if (mockPropertyDatabase[propertyCode]) {
+  //     setPropertyDetails(mockPropertyDatabase[propertyCode]);
+  //     setPropertyError('');
+  //   } else {
+  //     setPropertyDetails(null);
+  //     setPropertyError('No property found for this code. Please check and try again.');
+  //   }
+  //   setShowConfirm(true);
+  // };
+
+  const handleNext = async () => {
+    console.log('Inside handleNext');
+  console.log('propertyCode:', propertyCode);
+
+  try {
+    //setSubmitting(true);
+   // setMessage(null);
+
+     const formData = new FormData();
+     formData.append('pgCode', propertyCode.trim());
+
+    console.log('Calling API now...');
+    const data = await apiClient('/tenants/isVAlidationPgCode', 'POST', formData);
+    console.log('API response:', data);
+
+    if (data.isValid === 'Y') {
+      setPropertyDetails(data.pgDetails);
       setPropertyError('');
     } else {
       setPropertyDetails(null);
       setPropertyError('No property found for this code. Please check and try again.');
     }
+  } catch (error) {
+    console.log('Error during API call:', error);
+    if (error.response && error.response.data) {
+      setMessage('Error: ' + error.response.data.message);
+    } else {
+      setMessage('Something went wrong: ' + error.message);
+    }
+  } finally {
     setShowConfirm(true);
-  };
+  }
+  }
 
   const handleConfirm = () => {
     setShowConfirm(false);
@@ -96,8 +130,8 @@ const FindPropertyScreen = ({ navigation }) => {
               <View style={styles.propertyCard}>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                   <View style={{ flex: 1 }}>
-                    <Text style={styles.propertyName}>{propertyDetails.name}</Text>
-                    <Text style={styles.propertyAddress}>{propertyDetails.address}</Text>
+                    <Text style={styles.propertyName}>{propertyDetails.pg_name}</Text>
+                    <Text style={styles.propertyAddress}>{propertyDetails.pg_address}</Text>
                   </View>
                   <MaterialCommunityIcons name="home-city-outline" size={32} color="#6C47FF" style={{ marginLeft: 10 }} />
                 </View>

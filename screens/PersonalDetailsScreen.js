@@ -4,16 +4,20 @@ import { TextInput, Button, Text } from 'react-native-paper';
 import * as ImagePicker from 'expo-image-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
-
-const PersonalDetailsScreen = ({ navigation }) => {
+import apiClient from "../api/auth";
+const PersonalDetailsScreen = ({ navigation ,route }) => {
+  const { propertyCode } = route.params;
+  console.log(propertyCode)
   const [formData, setFormData] = useState({
-    name: '',
+    tenantName: '',
     dateOfBirth: '',
     mobileNumber: '',
     fatherName: '',
-    fatherNumber: '',
-    aadharCard: null,
-    companyIdCard: null
+    fatherMobileNumber: '',
+    adharCard: null,
+    companyId: null,
+    pgOkCode: propertyCode,
+    email:''
   });
 
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -50,9 +54,37 @@ const PersonalDetailsScreen = ({ navigation }) => {
     }
   };
 
-  const handleSubmit = () => {
-    // In a real app, we would submit this data to an API
+  const handleSubmit = async () => {
+    const submissionData = new FormData();
+
+    // Append text fields
+    submissionData.append('tenantName', formData.tenantName);
+    //submissionData.append('dateOfBirth', formData.dateOfBirth); // Should be in yyyy-MM-dd format
+    submissionData.append('mobileNumber', formData.mobileNumber);
+    submissionData.append('fatherName', formData.fatherName);
+    submissionData.append('fatherMobileNumber', formData.fatherMobileNumber);
+    submissionData.append('pgOkCode', formData.pgOkCode);
+    submissionData.append('email', formData.email);
+  
+    // Append file fields only if selected
+    if (formData.adharCard) {
+      submissionData.append('adharCard', {
+        uri: formData.adharCard.uri,
+        type: formData.adharCard.type || 'image/jpeg',
+        name: formData.adharCard.fileName || 'adharCard.jpg',
+      });
+    }
+  
+    if (formData.companyId) {
+      submissionData.append('companyId', {
+        uri: formData.companyId.uri,
+        type: formData.companyId.type || 'image/jpeg',
+        name: formData.companyId.fileName || 'companyId.jpg',
+      });
+    }
     console.log('Form submitted:', formData);
+     const data = await apiClient('/tenants/registerTenant', 'POST', submissionData);
+        console.log('API response:', data);
     navigation.navigate('TermsAgreement');
   };
 
@@ -64,13 +96,21 @@ const PersonalDetailsScreen = ({ navigation }) => {
 
       <View style={styles.inputContainer}>
         <TextInput
-          label="Name"
-          value={formData.name}
-          onChangeText={(value) => handleInputChange('name', value)}
+          label="tenantName"
+          value={formData.tenantName}
+          onChangeText={(value) => handleInputChange('tenantName', value)}
           mode="outlined"
           style={styles.input}
         />
-
+        <TextInput
+      label="Email"
+      value={formData.email}
+      onChangeText={(value) => handleInputChange('email', value)}
+      mode="outlined"
+      style={styles.input}
+      keyboardType="email-address"
+       autoCapitalize="none"
+/>
         <TouchableOpacity onPress={() => setShowDatePicker(true)}>
           <TextInput
             label="Date of Birth"
@@ -105,7 +145,7 @@ const PersonalDetailsScreen = ({ navigation }) => {
         />
 
         <TextInput
-          label="Father's Name"
+          label="Father's tenantName"
           value={formData.fatherName}
           onChangeText={(value) => handleInputChange('fatherName', value)}
           mode="outlined"
@@ -114,8 +154,8 @@ const PersonalDetailsScreen = ({ navigation }) => {
 
         <TextInput
           label="Father's Mobile Number"
-          value={formData.fatherNumber}
-          onChangeText={(value) => handleInputChange('fatherNumber', value)}
+          value={formData.fatherMobileNumber}
+          onChangeText={(value) => handleInputChange('fatherMobileNumber', value)}
           mode="outlined"
           style={styles.input}
           keyboardType="phone-pad"
@@ -126,15 +166,15 @@ const PersonalDetailsScreen = ({ navigation }) => {
           <Text style={styles.uploadLabel}>Aadhar Card Upload</Text>
           <TouchableOpacity 
             style={styles.uploadButton}
-            onPress={() => pickImage('aadharCard')}
+            onPress={() => pickImage('adharCard')}
           >
             <Text style={styles.uploadButtonText}>
-              {formData.aadharCard ? 'Change Aadhar Card' : 'Upload Aadhar Card'}
+              {formData.adharCard ? 'Change Aadhar Card' : 'Upload Aadhar Card'}
             </Text>
           </TouchableOpacity>
-          {formData.aadharCard && (
+          {formData.adharCard && (
             <Image 
-              source={{ uri: formData.aadharCard }} 
+              source={{ uri: formData.adharCard }} 
               style={styles.previewImage} 
             />
           )}
@@ -144,15 +184,15 @@ const PersonalDetailsScreen = ({ navigation }) => {
           <Text style={styles.uploadLabel}>Company ID Card Upload</Text>
           <TouchableOpacity 
             style={styles.uploadButton}
-            onPress={() => pickImage('companyIdCard')}
+            onPress={() => pickImage('companyId')}
           >
             <Text style={styles.uploadButtonText}>
-              {formData.companyIdCard ? 'Change Company ID' : 'Upload Company ID'}
+              {formData.companyId ? 'Change Company ID' : 'Upload Company ID'}
             </Text>
           </TouchableOpacity>
-          {formData.companyIdCard && (
+          {formData.companyId && (
             <Image 
-              source={{ uri: formData.companyIdCard }} 
+              source={{ uri: formData.companyId }} 
               style={styles.previewImage} 
             />
           )}
