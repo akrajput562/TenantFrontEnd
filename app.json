@@ -1,0 +1,29 @@
+{
+  "expo": {
+    "newArchEnabled": true,
+    "name": "PG Tenant",
+    "slug": "pg-tenant",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "backgroundColor": "#4A148C"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.pgtenant.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#4A148C"
+      },
+      "package": "com.pgtenant.app"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
+  }
+}
