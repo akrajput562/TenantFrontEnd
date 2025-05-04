@@ -6,6 +6,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
+     "jsEngine": "hermes",
     "splash": {
       "backgroundColor": "#4A148C"
     },
