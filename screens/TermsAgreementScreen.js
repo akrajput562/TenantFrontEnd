@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { TextInput, Button, Text, SegmentedButtons } from 'react-native-paper';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
-
-const TermsAgreementScreen = ({ navigation }) => {
+import apiClient from "../api/auth";
+const TermsAgreementScreen = ({ navigation ,route}) => {
+  const { reqId } = route.params; // 👈 Receive reqId here
+console.log(reqId)
   const [formData, setFormData] = useState({
     monthlyRent: '',
     securityDeposit: '',
@@ -22,11 +24,30 @@ const TermsAgreementScreen = ({ navigation }) => {
     }));
   };
 
-  const handleSubmit = () => {
-    // In a real app, we would submit this data to an API
+  const handleSubmit = async () => {
+    console.log('Submitting with reqId:', reqId);
     console.log('Form submitted:', formData);
-    navigation.navigate('UserDashboard');
-  };
+
+    const submissionData = new FormData();
+    submissionData.append("monthlyRent", formData.monthlyRent);
+    submissionData.append("securityDeposit", formData.securityDeposit);
+    submissionData.append("maintenance", formData.maintenance);
+    submissionData.append("agreementStartDate", formData.agreementStartDate);
+    submissionData.append("rentCycle", formData.rentCycle);
+    submissionData.append("cycleStartDate", formData.cycleStartDate || '');
+    submissionData.append("agreedToTerms", formData.agreedToTerms);
+    
+  
+    try {
+      //const response = await apiClient('/tenants/termUpdation/${reqId}', 'PUT', payload);
+      const response = await apiClient(`/tenants/termUpdation/${reqId}`, 'PUT', submissionData);
+      console.log('Dashboard', response);
+      navigation.navigate('UserDashboard');
+    } catch (error) {
+      console.error('Step 3 update failed:', error);
+    }
+  
+  }; 
 
   return (
     <ScrollView style={styles.container}>
@@ -77,8 +98,10 @@ const TermsAgreementScreen = ({ navigation }) => {
           isVisible={showDatePicker}
           mode="date"
           onConfirm={date => {
+            const formatted = date.toISOString().split('T')[0];
+            console.log('Selected agreement date:', formatted);
             setShowDatePicker(false);
-            handleInputChange('agreementStartDate', date.toISOString().split('T')[0]);
+            handleInputChange('agreementStartDate', formatted);
           }}
           onCancel={() => setShowDatePicker(false)}
           maximumDate={new Date()}
@@ -182,15 +205,7 @@ const TermsAgreementScreen = ({ navigation }) => {
         mode="contained"
         onPress={handleSubmit}
         style={styles.button}
-        disabled={
-          !formData.agreedToTerms ||
-          !formData.monthlyRent ||
-          !formData.securityDeposit ||
-          !formData.maintenance ||
-          !formData.agreementStartDate ||
-          !formData.rentCycle ||
-          (formData.rentCycle === 'date-to-date' && !formData.cycleStartDate)
-        }
+        
       >
         Send
       </Button>

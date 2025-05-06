@@ -85,7 +85,8 @@ const PersonalDetailsScreen = ({ navigation ,route }) => {
     console.log('Form submitted:', formData);
      const data = await apiClient('/tenants/registerTenant', 'POST', submissionData);
         console.log('API response:', data);
-    navigation.navigate('TermsAgreement');
+        const reqId = data.reqId;
+    navigation.navigate('TermsAgreement',{reqId});
   };
 
   return (
